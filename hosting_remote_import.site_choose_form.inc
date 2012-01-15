@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Form to select exactly which site to import.
+ */
 function hosting_remote_import_sites_choose_site_form(&$form_state, $server, $vid) {
   $form = array();
   $sites = array();
@@ -34,6 +37,11 @@ function hosting_remote_import_sites_choose_site_form(&$form_state, $server, $vi
   return $form;
 }
 
+/**
+ * Simple submit handler that does a redirect.
+ *
+ * @see hosting_remote_import_sites_choose_site_form()
+ */
 function hosting_remote_import_sites_choose_site_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   // Just build a redirect
