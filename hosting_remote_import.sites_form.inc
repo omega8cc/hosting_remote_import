@@ -83,21 +83,24 @@ function hosting_remote_import_sites_form_submit_batch_wait_task($nid, &$context
       case HOSTING_TASK_PROCESSING:
         $context['finished'] = 0.8;
         $context['message'] = 'Fetching results from remote server';
-        break;
+        return;
       case HOSTING_TASK_QUEUED:
-        $context['finished'] = 0.2;
-        $context['message'] = 'Task is queued, waiting for dispatcher to run.';
         break;
       case HOSTING_TASK_SUCCESS:
         $context['message'] = 'Complete';
         $context['results']['final_vid'] = $task->vid;
-        break;
+        return;
       case HOSTING_TASK_ERROR:
+        return;
+      // We should never get this.
       default:
         return;
     }
     
   }
+  
+  $context['finished'] = 0.2;
+  $context['message'] = 'Task is queued, waiting for dispatcher to run.';
 }
 
 /**

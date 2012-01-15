@@ -85,7 +85,7 @@ function hosting_remote_import_sites_choose_platform_form_title_validate($elemen
 }
 
 /**
- * Form submit callback.
+ * Form submit callback for the back button.
  *
  * @see hosting_remote_import_sites_choose_platform_form()
  */
@@ -116,11 +116,18 @@ function hosting_remote_import_sites_choose_platform_form_submit($form, &$form_s
     ),
     'finished' => 'hosting_remote_import_sites_choose_platform_form_submit_batch_finished',
     'file' => drupal_get_path('module', 'hosting_remote_import') . '/hosting_remote_import.local_settings_form.inc',
+    'title' => t('Importing'),
   );
   
   batch_set($batch);
 }
 
+/**
+ * Batch callback.
+ *
+ * The first time we are called, create a new backend task to do all the work,
+ * and then poll to see if it has completed.
+ */
 function hosting_remote_import_sites_choose_platform_form_submit_batch_create_task($nid, $args, &$context) {
   
   if (!isset($context['results']['nid'])) {
@@ -129,10 +136,6 @@ function hosting_remote_import_sites_choose_platform_form_submit_batch_create_ta
   
   if (!isset($context['results']['new_url'])) {
     $context['results']['new_url'] = $args['new_url'];
-  }
-  
-  if (!isset($context['results']['start_time'])) {
-    $context['results']['start_time'] = time();
   }
   
   // On the first time through, create the task.
@@ -153,25 +156,33 @@ function hosting_remote_import_sites_choose_platform_form_submit_batch_create_ta
       case HOSTING_TASK_PROCESSING:
         $context['finished'] = 0.5;
         $context['message'] = 'Importing. This may take a while.';
-        break;
+        return;
       case HOSTING_TASK_QUEUED:
-        $context['finished'] = 0.2;
-        $context['message'] = 'Task is queued, waiting for dispatcher to run.';
         break;
       case HOSTING_TASK_SUCCESS:
         $context['message'] = 'Complete';
         $context['results']['final_vid'] = $task->vid;
-        break;
+        return;
       case HOSTING_TASK_ERROR:
+        return;
+      // We shouldn't get any other status.
       default:
         return;
     }
     
   }
+  $context['finished'] = 0.2;
+  $context['message'] = 'Task is queued, waiting for dispatcher to run.';
 }
 
+/**
+ * Batch finished callback.
+ *
+ * Redirect to either the node that was just imported, or an error page.
+ */
 function hosting_remote_import_sites_choose_platform_form_submit_batch_finished($success, $results, $operations) {
   if (isset($results['new_url']) && ($node = hosting_context_load($results['new_url']))) {
+    drupal_set_message(t('Site imported successfully.'));
     $_SESSION['hosting_remote_import_redirect2'] = 'node/' . $node->nid;
   }
   else {
