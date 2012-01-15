@@ -1,7 +1,7 @@
 <?php
 
 /**
- * hosting_remote_import_sites_choose_platform
+ * Form to choose a local platform for the imported remote site.
  */
 function hosting_remote_import_sites_choose_platform_form(&$form_state, $server, $vid, $url) {
   $form = array();
@@ -34,6 +34,9 @@ function hosting_remote_import_sites_choose_platform_form(&$form_state, $server,
     '#description' => t('This will be used as the local site URL'),
     '#default_value' => $url,
     '#required' => TRUE,
+    '#element_validate' => array(
+      'hosting_remote_import_sites_choose_platform_form_title_validate'
+    ),
   );
   
   $form['platform'] = array(
@@ -67,6 +70,18 @@ function hosting_remote_import_sites_choose_platform_form(&$form_state, $server,
   );
   
   return $form;
+}
+
+function hosting_remote_import_sites_choose_platform_form_title_validate($element, &$form_state) {
+  $url = strtolower(trim($element['#value'])); // domain names are case-insensitive
+  if (!_hosting_valid_fqdn($url)) {
+    form_error($element, t("You have not specified a valid url for this site."));
+  }
+
+  # TODO: maybe we should allow creation of sites that conflict with HOSTING_SITE_DISABLED (which would then need to be renamed before being re-enabled)
+  if (!hosting_domain_allowed($url)) {
+    form_error($element, t("The domain name you have specified is already in use."));
+  }
 }
 
 /**
