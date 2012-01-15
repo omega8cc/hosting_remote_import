@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Implements hook_post_hosting_remote_import_list_sites_task().
+ *
+ * After our list sites task runs, capture the results.
+ */
 function hosting_remote_import_post_hosting_remote_import_list_sites_task($task, $data) {
   if ($task->ref->type == 'server') {
     if (isset($data['context']['remote_sites_list']) && is_array($data['context']['remote_sites_list'])) {
@@ -11,7 +16,12 @@ function hosting_remote_import_post_hosting_remote_import_list_sites_task($task,
   }
 }
 
-
+/**
+ *  Implements drush_hook_pres_hosting_task().
+ *
+ *  Convert the arguments for a 'remote import' task from IDs into strings and
+ *  assign them as options to the drush command.
+ */
 function drush_hosting_remote_import_pre_hosting_task($task) {
   $task = &drush_get_context('HOSTING_TASK');
 
@@ -28,6 +38,12 @@ function drush_hosting_remote_import_pre_hosting_task($task) {
 
 }
 
+/**
+ *  Implements hook_drush_context_import().
+ *
+ *  As a new site is imported using hosting-import check to see if it came from
+ *  a remote system, and if it did, then don't try to install it!
+ */
 function hosting_remote_import_drush_context_import($context, &$node) {
   // From hosting_alias_drush_context_import().
   if ($context->type == 'site') {
