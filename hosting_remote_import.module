@@ -29,6 +29,15 @@ function hosting_remote_import_hosting_tasks() {
 function hosting_remote_import_menu() {
   $items = array();
   
+  $items['import-remote-sites'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => 'Import remote sites',
+    'access arguments' => array('view server'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hosting_remote_import_form'),
+    'file' => 'hosting_remote_import.global.inc',
+  );
+  
   $items['node/%node/import-sites'] = array(
     'type' => MENU_LOCAL_TASK,
     'title' => 'Import remote sites',
@@ -124,4 +133,3 @@ function hosting_remote_import_hosting_service_type() {
 function hosting_remote_import_hosting_service() {
   return array('hostmaster' => 'remote_import');   // Service implementation => service type.
 }
-
