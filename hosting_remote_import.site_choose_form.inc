@@ -3,24 +3,24 @@
 /**
  * Form to select exactly which site to import.
  */
-function hosting_remote_import_sites_choose_site_form(&$form_state, $server, $vid) {
+function hosting_remote_import_sites_choose_site_form($form, &$form_state, $server, $vid) {
   $form = array();
   $sites = array();
-  $result = db_query('SELECT site FROM {remote_import_sites} WHERE tid = %d ORDER BY site ASC', $vid);
+  $result = db_query('SELECT site FROM {remote_import_sites} WHERE tid = :tid ORDER BY site ASC', array(':tid' => $vid));
   while ($row = db_fetch_object($result)) {
     $sites[$row->site] = $row->site;
   }
-  
+
   $form['nid'] = array(
     '#type' => 'value',
     '#value' => $server->nid,
   );
-  
+
   $form['vid'] = array(
     '#type' => 'value',
     '#value' => $vid,
   );
-  
+
   $form['site'] = array(
     '#type' => 'radios',
     '#title' => t('Select the site to import'),
@@ -28,12 +28,12 @@ function hosting_remote_import_sites_choose_site_form(&$form_state, $server, $vi
     '#options' => $sites,
     '#required' => TRUE,
   );
-  
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Next >'),
   );
-  
+
   return $form;
 }
 

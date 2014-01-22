@@ -7,19 +7,19 @@ function hosting_remote_import_hosting_tasks() {
   $options = array();
 
   $options['server']['remote_import_list_sites'] = array(
-    'title' => t('List remote sites'), 
-    'description' => t('List all the sites on the remote server.'), 
+    'title' => t('List remote sites'),
+    'description' => t('List all the sites on the remote server.'),
     'dialog' => FALSE,
     'hidden' => TRUE,
   );
-  
+
   $options['server']['remote_import'] = array(
-    'title' => t('Import remote site'), 
-    'description' => t('Import a remote site from a server.'), 
+    'title' => t('Import remote site'),
+    'description' => t('Import a remote site from a server.'),
     'dialog' => FALSE,
     'hidden' => TRUE,
   );
-  
+
   return $options;
 }
 
@@ -28,7 +28,7 @@ function hosting_remote_import_hosting_tasks() {
  */
 function hosting_remote_import_menu() {
   $items = array();
-  
+
   $items['import-remote-sites'] = array(
     'type' => MENU_NORMAL_ITEM,
     'title' => 'Import remote sites',
@@ -37,7 +37,7 @@ function hosting_remote_import_menu() {
     'page arguments' => array('hosting_remote_import_form'),
     'file' => 'hosting_remote_import.global.inc',
   );
-  
+
   $items['node/%node/import-sites'] = array(
     'type' => MENU_LOCAL_TASK,
     'title' => 'Import remote sites',
@@ -47,7 +47,7 @@ function hosting_remote_import_menu() {
     'page arguments' => array('hosting_remote_import_sites_form', 1),
     'file' => 'hosting_remote_import.sites_form.inc',
   );
-  
+
   $items['node/%node/import-sites/chooser/%/%'] = array(
     'type' => MENU_LOCAL_TASK,
     'title' => 'Import remote sites',
@@ -57,7 +57,7 @@ function hosting_remote_import_menu() {
     'page arguments' => array('hosting_remote_import_sites_choose_site_form', 1, 4),
     'file' => 'hosting_remote_import.site_choose_form.inc',
   );
-  
+
   $items['node/%node/import-sites/platform/%/%/%'] = array(
     'type' => MENU_LOCAL_TASK,
     'title' => 'Import remote sites',
@@ -67,15 +67,20 @@ function hosting_remote_import_menu() {
     'page arguments' => array('hosting_remote_import_sites_choose_platform_form', 1, 4, 5),
     'file' => 'hosting_remote_import.local_settings_form.inc',
   );
-  
+
   return $items;
 }
 
 /**
- * Implements hook_perm().
+ * Implements hook_permission().
  */
-function hosting_remote_import_perm() {
-  return array('import sites from remote servers');
+function hosting_remote_import_permission() {
+  return array(
+    'import sites from remote servers' => array(
+      'title' => t('import sites from remote servers'),
+      'description' => t('TODO Add a description for \'import sites from remote servers\''),
+    ),
+  );
 }
 
 /**
@@ -86,19 +91,19 @@ function hosting_remote_import_list_sites_access($node, $account = NULL) {
   if ($node->type != 'server') {
     return FALSE;
   }
-  
+
   // The server needs the remote_import service.
   $servers = hosting_get_servers('remote_import');
   if (!isset($servers[$node->nid])) {
     return FALSE;
   }
-  
+
   if (is_null($account)) {
     $account = $GLOBALS['user'];
   }
-  
+
   return user_access('import sites from remote servers') && node_access('view', $node, $account);
-  
+
 }
 
 /**
@@ -116,20 +121,20 @@ function hosting_remote_import_platform_access($node, $vid, $url, $token) {
 }
 
 /**
- *  Implements hook_hosting_service_type().
+ * Implements hook_hosting_service_type().
  */
 function hosting_remote_import_hosting_service_type() {
   return array(
-    'remote_import' => array(       // Machine name
+    'remote_import' => array(// Machine name
       'title' => t('Remote Import'), // Human-readable name
-      'weight' => 0,       // Optional, defaults to 0
+      'weight' => 0, // Optional, defaults to 0
     ),
   );
 }
 
 /**
- *  Implements hook_hosting_service().
+ * Implements hook_hosting_service().
  */
 function hosting_remote_import_hosting_service() {
-  return array('hostmaster' => 'remote_import');   // Service implementation => service type.
+  return array('hostmaster' => 'remote_import'); // Service implementation => service type.
 }

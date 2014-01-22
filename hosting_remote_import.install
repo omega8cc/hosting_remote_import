@@ -1,17 +1,25 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the hosting_remote_import module.
+ *
+ */
+
 
 /**
  * Implements hook_install().
  */
 function hosting_remote_import_install() {
-  drupal_install_schema('hosting_remote_import');
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('hosting_remote_import')
 }
 
 /**
  * Implements hook_uninstall().
  */
 function hosting_remote_import_uninstall() {
-  drupal_uninstall_schema('hosting_remote_import');
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema('hosting_remote_import')
 }
 
 /**
@@ -19,7 +27,7 @@ function hosting_remote_import_uninstall() {
  */
 function hosting_remote_import_schema() {
   $schema = array();
-  
+
   $schema['remote_import_sites'] = array(
     'fields' => array(
       'tid' => array(
@@ -39,6 +47,6 @@ function hosting_remote_import_schema() {
       'tid' => array('tid'),
     ),
   );
-  
+
   return $schema;
 }

@@ -3,31 +3,31 @@
 /**
  * Form to choose a local platform for the imported remote site.
  */
-function hosting_remote_import_sites_choose_platform_form(&$form_state, $server, $vid, $url) {
+function hosting_remote_import_sites_choose_platform_form($form, &$form_state, $server, $vid, $url) {
   $form = array();
-  
+
   // Horrible, horrible way that we have to redirect after a batch.
   if (!empty($_SESSION['hosting_remote_import_redirect2'])) {
     $url = $_SESSION['hosting_remote_import_redirect2'];
     unset($_SESSION['hosting_remote_import_redirect2']);
     drupal_goto($url);
   }
-  
+
   $form['nid'] = array(
     '#type' => 'value',
     '#value' => $server->nid,
   );
-  
+
   $form['vid'] = array(
     '#type' => 'value',
     '#value' => $vid,
   );
-  
+
   $form['site'] = array(
     '#type' => 'value',
     '#value' => $url,
   );
-  
+
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('New URL'),
@@ -35,10 +35,10 @@ function hosting_remote_import_sites_choose_platform_form(&$form_state, $server,
     '#default_value' => $url,
     '#required' => TRUE,
     '#element_validate' => array(
-      'hosting_remote_import_sites_choose_platform_form_title_validate'
+      'hosting_remote_import_sites_choose_platform_form_title_validate',
     ),
   );
-  
+
   $form['platform'] = array(
     '#type' => 'radios',
     '#title' => t('Platform'),
@@ -46,7 +46,7 @@ function hosting_remote_import_sites_choose_platform_form(&$form_state, $server,
     '#options' => _hosting_get_platforms(),
     '#required' => TRUE,
   );
-  
+
   $form['db_server'] = array(
     '#type' => 'radios',
     '#title' => t('Database server'),
@@ -55,7 +55,7 @@ function hosting_remote_import_sites_choose_platform_form(&$form_state, $server,
     '#default_value' => HOSTING_DEFAULT_DB_SERVER,
     '#required' => TRUE,
   );
-  
+
   $form['back'] = array(
     '#type' => 'submit',
     '#value' => t('< Back'),
@@ -63,15 +63,19 @@ function hosting_remote_import_sites_choose_platform_form(&$form_state, $server,
       'hosting_remote_import_sites_choose_platform_form_submit_back',
     ),
   );
-  
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Import'),
   );
-  
+
   return $form;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function hosting_remote_import_sites_choose_platform_form_title_validate($element, &$form_state) {
   $url = strtolower(trim($element['#value'])); // domain names are case-insensitive
   if (!_hosting_valid_fqdn($url)) {
@@ -109,7 +113,7 @@ function hosting_remote_import_sites_choose_platform_form_submit($form, &$form_s
     'platform' => $values['platform'],
     'db_server' => $values['db_server'],
   );
-  
+
   $batch = array(
     'operations' => array(
       array('hosting_remote_import_sites_choose_platform_form_submit_batch_create_task', array($values['nid'], $args)),
@@ -118,7 +122,7 @@ function hosting_remote_import_sites_choose_platform_form_submit($form, &$form_s
     'file' => drupal_get_path('module', 'hosting_remote_import') . '/hosting_remote_import.local_settings_form.inc',
     'title' => t('Importing'),
   );
-  
+
   batch_set($batch);
 }
 
@@ -129,15 +133,15 @@ function hosting_remote_import_sites_choose_platform_form_submit($form, &$form_s
  * and then poll to see if it has completed.
  */
 function hosting_remote_import_sites_choose_platform_form_submit_batch_create_task($nid, $args, &$context) {
-  
+
   if (!isset($context['results']['nid'])) {
     $context['results']['nid'] = $nid;
   }
-  
+
   if (!isset($context['results']['new_url'])) {
     $context['results']['new_url'] = $args['new_url'];
   }
-  
+
   // On the first time through, create the task.
   if (!isset($context['results']['task_vid'])) {
     $task = hosting_add_task($nid, 'remote_import', $args);
@@ -146,12 +150,12 @@ function hosting_remote_import_sites_choose_platform_form_submit_batch_create_ta
     $context['message'] = t('Created task to import the remote site.');
     return;
   }
-  
+
   // Now we wait for it to be created.
-  $tasks = db_query("SELECT t.vid, n.nid FROM {hosting_task} t INNER JOIN {node} n ON n.vid = t.vid WHERE task_type = '%s' AND t.rid = %d AND t.vid >= %d ORDER BY t.vid ASC", 'remote_import', $nid, $context['results']['task_vid']);
+  $tasks = db_query("SELECT t.vid, n.nid FROM {hosting_task} t INNER JOIN {node} n ON n.vid = t.vid WHERE task_type = :task_type AND t.rid = :t.rid AND t.vid >= :t.vid ORDER BY t.vid ASC", array(':task_type' => 'remote_import', ':t.rid' => $nid, ':t.vid' => $context['results']['task_vid']));
   while ($row = db_fetch_object($tasks)) {
     $task = node_load($row->nid, $row->vid);
-    
+
     switch ($task->task_status) {
       case HOSTING_TASK_PROCESSING:
         $context['finished'] = 0.5;
@@ -165,11 +169,11 @@ function hosting_remote_import_sites_choose_platform_form_submit_batch_create_ta
         return;
       case HOSTING_TASK_ERROR:
         return;
-      // We shouldn't get any other status.
+        // We shouldn't get any other status.
       default:
         return;
     }
-    
+
   }
   $context['finished'] = 0.2;
   $context['message'] = 'Task is queued, waiting for dispatcher to run.';

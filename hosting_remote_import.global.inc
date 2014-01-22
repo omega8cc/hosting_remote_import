@@ -3,11 +3,11 @@
 /**
  * Form that helps people start importing remote sites.
  */
-function hosting_remote_import_form(&$form_state) {
+function hosting_remote_import_form($form, &$form_state) {
   $form = array();
-  
+
   $servers = hosting_get_servers('remote_import');
-  
+
   switch (count($servers)) {
     case 1:
       // If there is a single server set up for import, just redirect to it.
@@ -32,7 +32,7 @@ function hosting_remote_import_form(&$form_state) {
         '#options' => $servers,
         '#required' => TRUE,
       );
-      
+
       $form['submit'] = array(
         '#type' => 'submit',
         '#value' => t('Next >'),

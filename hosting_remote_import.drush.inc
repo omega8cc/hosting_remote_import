@@ -9,9 +9,16 @@ function hosting_remote_import_post_hosting_remote_import_list_sites_task($task,
   if ($task->ref->type == 'server') {
     if (isset($data['context']['remote_sites_list']) && is_array($data['context']['remote_sites_list'])) {
       foreach ($data['context']['remote_sites_list'] as $url) {
-        db_query("INSERT INTO {remote_import_sites} (tid, site) VALUES (%d, '%s')", $task->vid, $url);
+        // TODO Please review the conversion of this statement to the D7 database API syntax.
+        /* db_query("INSERT INTO {remote_import_sites} (tid, site) VALUES (%d, '%s')", $task->vid, $url) */
+        $id = db_insert('remote_import_sites')
+  ->fields(array(
+          'tid' => $task->vid,
+          'site' => $url,
+        ))
+  ->execute();
       }
-      
+
     }
   }
 }
@@ -39,7 +46,7 @@ function drush_hosting_remote_import_pre_hosting_task($task) {
 }
 
 /**
- *  Implements hook_drush_context_import().
+ * Implements hook_drush_context_import().
  *
  *  As a new site is imported using hosting-import check to see if it came from
  *  a remote system, and if it did, then don't try to install it!
