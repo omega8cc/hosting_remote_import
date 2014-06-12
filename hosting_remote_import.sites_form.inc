@@ -16,7 +16,7 @@ function hosting_remote_import_sites_form($form, &$form_state, $node) {
   $form['description'] = array(
     '#type' => 'item',
     '#title' => t('Importing a site'),
-    '#value' => t('<p>The following pages will take you through the following steps.<ol><li><p>We will fetch a list of the sites on the remote server.</p></li><li><p>You can then choose which of the remote sites that you want to import.</p></li><li><p>You will be given options for which platform you want to deploy this site into. Note that you must have a compatible platform setup before you start this process. So you may need to <a href="@add_platform">add a new platform</a>.</p></li><li><p>The site will then be imported.</p></li></ol><p>Click the button below to get started.</p>', array('@add_platform' => url('node/add/platform'))),
+    '#description' => t('<p>The following pages will take you through the following steps.<ol><li><p>We will fetch a list of the sites on the remote server.</p></li><li><p>You can then choose which of the remote sites that you want to import.</p></li><li><p>You will be given options for which platform you want to deploy this site into. Note that you must have a compatible platform setup before you start this process. So you may need to <a href="@add_platform">add a new platform</a>.</p></li><li><p>The site will then be imported.</p></li></ol><p>Click the button below to get started.</p>', array('@add_platform' => url('node/add/platform'))),
   );
 
   $form['nid'] = array(
