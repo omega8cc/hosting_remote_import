@@ -152,8 +152,8 @@ function hosting_remote_import_sites_choose_platform_form_submit_batch_create_ta
   }
 
   // Now we wait for it to be created.
-  $tasks = db_query("SELECT t.vid, n.nid FROM {hosting_task} t INNER JOIN {node} n ON n.vid = t.vid WHERE task_type = :task_type AND t.rid = :t.rid AND t.vid >= :t.vid ORDER BY t.vid ASC", array(':task_type' => 'remote_import', ':t.rid' => $nid, ':t.vid' => $context['results']['task_vid']));
-  while ($row = db_fetch_object($tasks)) {
+  $tasks = db_query("SELECT t.vid, n.nid FROM {hosting_task} t INNER JOIN {node} n ON n.vid = t.vid WHERE task_type = :task_type AND t.rid = :trid AND t.vid >= :tvid ORDER BY t.vid ASC", array(':task_type' => 'remote_import', ':trid' => $nid, ':tvid' => $context['results']['task_vid']));
+  foreach ($tasks as $row) {
     $task = node_load($row->nid, $row->vid);
 
     switch ($task->task_status) {

@@ -7,7 +7,7 @@ function hosting_remote_import_sites_choose_site_form($form, &$form_state, $serv
   $form = array();
   $sites = array();
   $result = db_query('SELECT site FROM {remote_import_sites} WHERE tid = :tid ORDER BY site ASC', array(':tid' => $vid));
-  while ($row = db_fetch_object($result)) {
+  foreach ($result as $row) {
     $sites[$row->site] = $row->site;
   }
 
