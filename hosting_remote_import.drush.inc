@@ -8,17 +8,13 @@
 function hosting_remote_import_post_hosting_remote_import_list_sites_task($task, $data) {
   if ($task->ref->type == 'server') {
     if (isset($data['context']['remote_sites_list']) && is_array($data['context']['remote_sites_list'])) {
-      foreach ($data['context']['remote_sites_list'] as $url) {
-        // TODO Please review the conversion of this statement to the D7 database API syntax.
-        /* db_query("INSERT INTO {remote_import_sites} (tid, site) VALUES (%d, '%s')", $task->vid, $url) */
-        $id = db_insert('remote_import_sites')
-  ->fields(array(
+      foreach ($data['context']['remote_sites_list'] as $url => $platform) {
+        $id = db_insert('remote_import_sites')->fields(array(
           'tid' => $task->vid,
           'site' => $url,
-        ))
-  ->execute();
+          'platform' => $platform,
+        ))->execute();
       }
-
     }
   }
 }

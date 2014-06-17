@@ -6,9 +6,9 @@
 function hosting_remote_import_sites_choose_site_form($form, &$form_state, $server, $vid) {
   $form = array();
   $sites = array();
-  $result = db_query('SELECT site FROM {remote_import_sites} WHERE tid = :tid ORDER BY site ASC', array(':tid' => $vid));
+  $result = db_query('SELECT site, platform FROM {remote_import_sites} WHERE tid = :tid ORDER BY site ASC', array(':tid' => $vid));
   foreach ($result as $row) {
-    $sites[$row->site] = $row->site;
+    $sites[$row->site] = $row->site . ' (' . $row->platform . ')';
   }
 
   $form['nid'] = array(
