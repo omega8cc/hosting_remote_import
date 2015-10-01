@@ -8,8 +8,6 @@ Installation
 
 Install this module like any other, and enable in the usual way.
 
-You also need to install the backend portion of this extension for this to work
-correctly: https://drupal.org/project/remote_import
 
 Usage
 -----
@@ -22,7 +20,7 @@ set it up like other remote servers. Note that you don't need to install
 anything other than the SSH key on this server.
 
 A general guide to setting up SSH on remote servers can be found here:
-http://community.aegirproject.org/node/30#SSH_keys
+http://aegir.readthedocs.org/en/3.x/remote-servers/remote-servers/#ssh-keys
 
 Once you've set up your server in the frontend you should get a new menu item
 called: 'Import remote sites' when viewing the server node. Click on that link
