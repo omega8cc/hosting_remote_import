@@ -58,6 +58,12 @@ function remote_import_drush_command() {
   $items['provision-remote_import'] = array(
     'description' => "Imports a site from the remote server.",
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH, // No bootstrap at all.
+    'options' => array(
+      'old_url' => dt('Old URL.'),
+      'new_url' => dt('New URL.'),
+      'platform' => dt('Drush alias of the platform to deploy on.'),
+      'db_server' => dt('Drush alias of teh database server to use.'),
+    ),
   );
 
   return $items;
