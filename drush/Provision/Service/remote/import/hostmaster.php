@@ -49,28 +49,57 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
   function list_sites() {
     $sites = array();
 
-    $result = $this->remote_execute('@hostmaster status', array());
-    drush_print_r($result);
+    $result = $this->remote_execute('@hostmaster variable-get aegir_api --format=string', array());
+    $aegir_api = $result['output'];
 
-    // We talk to the remote Aegir, and get it to list the sites it has.
-    // We need to bootstrap the remote hostmaster.
-    $lines[] = 'drush_bootstrap(DRUSH_BOOTSTRAP_DRUPAL_FULL)';
-    $lines[] = '$sites = array()';
-    $lines[] = '$results = db_query("SELECT sn.title as site, pn.title as platform
-                                      FROM {hosting_site} hs
-                                INNER JOIN {node} sn
-                                        ON hs.nid = sn.nid
-                                INNER JOIN {hosting_platform} hp
-                                        ON hs.platform = hp.nid
-                                INNER JOIN {node} pn
-                                        ON hp.nid = pn.nid
-                                     WHERE hs.status = :status", array(":status" => HOSTING_SITE_ENABLED))';
-    $lines[] = 'foreach ($results as $result) {';
-    $lines[] = '  $sites[$result->site] = $result->platform';
-    $lines[] = '}';
-    // Set the $sites array into the backend result, so we can extract it easily
-    // later.
-    $lines[] = 'drush_backend_set_result($sites)';
+    drush_log(dt('Remote Aegir API version: ') . $aegir_api);
+
+    if ($aegir_api == 3) {
+       // We talk to the remote Aegir, and get it to list the sites it has.
+       // We need to bootstrap the remote hostmaster.
+       $lines[] = 'drush_bootstrap(DRUSH_BOOTSTRAP_DRUPAL_FULL)';
+       $lines[] = '$sites = array()';
+       $lines[] = '$results = db_query("SELECT sn.title as site, pn.title as platform
+                                         FROM {hosting_site} hs
+                                   INNER JOIN {node} sn
+                                           ON hs.nid = sn.nid
+                                   INNER JOIN {hosting_platform} hp
+                                           ON hs.platform = hp.nid
+                                   INNER JOIN {node} pn
+                                           ON hp.nid = pn.nid
+                                        WHERE hs.status = :status", array(":status" => HOSTING_SITE_ENABLED))';
+       $lines[] = 'foreach ($results as $result) {';
+       $lines[] = '  $sites[$result->site] = $result->platform';
+       $lines[] = '}';
+       // Set the $sites array into the backend result, so we can extract it easily
+       // later.
+       $lines[] = 'drush_backend_set_result($sites)';
+    }
+    elseif ($aegir_api == 2) {
+       // We talk to the remote Aegir, and get it to list the sites it has.
+       // We need to bootstrap the remote hostmaster.
+       $lines[] = 'drush_bootstrap(DRUSH_BOOTSTRAP_DRUPAL_FULL)';
+       $lines[] = '$sites = array()';
+       $lines[] = '$results = db_query("SELECT sn.title as site, pn.title as platform
+                                         FROM {hosting_site} hs
+                                   INNER JOIN {node} sn
+                                           ON hs.nid = sn.nid
+                                   INNER JOIN {hosting_platform} hp
+                                           ON hs.platform = hp.nid
+                                   INNER JOIN {node} pn
+                                           ON hp.nid = pn.nid
+                                        WHERE hs.status = 1")';
+       $lines[] = 'while ($r = db_fetch_object($results)) {';
+       $lines[] = '  $sites[$r->site] = $r->platform';
+       $lines[] = '}';
+       // Set the $sites array into the backend result, so we can extract it easily
+       // later.
+       $lines[] = 'drush_backend_set_result($sites)';
+    }
+    else {
+      drush_set_error('AEGIR_REMOTE_IMPORT_UNSUPPORTED_API', dt('Remote import only supports importing from Aegir 2 or Aegir 3 remotes. The API version received was: ') . $aegir_api);
+    }
+
 
     // Execute the PHP we wrote in $lines on the remote server.
     $result = $this->remote_execute('@hostmaster php-eval', array(implode(';', $lines) . ';'));
