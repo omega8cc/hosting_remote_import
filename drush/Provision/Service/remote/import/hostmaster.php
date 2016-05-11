@@ -50,7 +50,11 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
     $sites = array();
 
     $result = $this->remote_execute('@hostmaster variable-get aegir_api --format=string', array());
-    $aegir_api = $result['output'];
+    $aegir_api = trim($result['output']);
+    $api_parts = explode(':', $aegir_api);
+    if (sizeof($api_parts) >= 2) {
+      $aegir_api = trim($api_parts[1]);
+    }
 
     drush_log(dt('Remote Aegir API version: ') . $aegir_api);
 
