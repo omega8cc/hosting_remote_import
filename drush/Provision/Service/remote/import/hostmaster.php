@@ -71,7 +71,10 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
                                            ON hs.platform = hp.nid
                                    INNER JOIN {node} pn
                                            ON hp.nid = pn.nid
-                                        WHERE hs.status = :status", array(":status" => HOSTING_SITE_ENABLED))';
+                                        WHERE hs.status IN(:disabled, :enabled)", array(
+                                                ":disabled" => HOSTING_SITE_DISABLED,
+                                                ":enabled" => HOSTING_SITE_ENABLED,
+                                              ))';
        $lines[] = 'foreach ($results as $result) {';
        $lines[] = '  $sites[$result->site] = $result->platform';
        $lines[] = '}';
@@ -92,7 +95,7 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
                                            ON hs.platform = hp.nid
                                    INNER JOIN {node} pn
                                            ON hp.nid = pn.nid
-                                        WHERE hs.status = 1")';
+                                        WHERE hs.status IN(-1, 1)")';
        $lines[] = 'while ($r = db_fetch_object($results)) {';
        $lines[] = '  $sites[$r->site] = $r->platform';
        $lines[] = '}';
