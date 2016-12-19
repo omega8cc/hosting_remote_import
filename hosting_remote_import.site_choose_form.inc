@@ -24,7 +24,7 @@ function hosting_remote_import_sites_choose_site_form($form, &$form_state, $serv
   $form['site'] = array(
     '#type' => 'radios',
     '#title' => t('Select the site to import'),
-    '#description' => t('These are all the active sites on the remote server, choose one to import. You\'ll be given options such as the target platform on the next screen.'),
+    '#description' => t('These are all of the existing (enabled and disabled) sites on the remote server, choose one to import. You\'ll be given options such as the target platform on the next screen.'),
     '#options' => $sites,
     '#required' => TRUE,
   );

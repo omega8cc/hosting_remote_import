@@ -97,6 +97,7 @@ function hosting_remote_import_sites_form_submit_batch_wait_task($nid, &$context
         return;
       case HOSTING_TASK_QUEUED:
         break;
+      case HOSTING_TASK_WARNING:
       case HOSTING_TASK_SUCCESS:
         $context['message'] = 'Complete';
         $context['results']['final_vid'] = $task->vid;
