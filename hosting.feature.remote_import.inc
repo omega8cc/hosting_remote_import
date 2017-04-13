@@ -16,7 +16,7 @@ function hosting_remote_import_hosting_feature() {
     // associate with a specific node type.
     //  'node' => 'nodetype',
     // which group to display in ( null , experimental )
-    'group' => 'experimental',
+    'group' => 'advanced',
   );
   return $features;
 }
