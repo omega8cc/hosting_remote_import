@@ -133,7 +133,7 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
 
     // And now fetch that backup.
     $local_file = d('@hostmaster')->platform->server->backup_path . '/' . basename($remote_backup_file);
-    $this->fetch($remote_backup_file, $local_file);
+    $this->fetch_path($remote_backup_file, $local_file);
 
     // And now delete the backup just fetched.
     $this->remote_execute('provision-backup-delete', array($remote_backup_file));
@@ -141,7 +141,7 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
     return $local_file;
   }
 
-  function fetch($path, $dest) {
+  function fetch_path($path, $dest) {
     $options = array(
       'omit-dir-times' => TRUE,
     );
