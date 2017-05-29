@@ -26,5 +26,78 @@ class hostingService_remote_import_hostmaster extends hostingService_remote_impo
    */
   public $has_port = FALSE;
 
-}
+  /**
+   * The name displayed to users when creating or editing a server.
+   *
+   * @var name
+   */
+  public $name = 'Remote hostmaster';
 
+  /**
+   * {@inheritdoc}
+   */
+  public function load() {
+    parent::load();
+    $this->remote_user = variable_get('hosting_user_remote_server_' . $this->server->nid, '');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function insert() {
+    parent::insert();
+    variable_set('hosting_user_remote_server_' . $this->server->nid, $this->remote_user);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function update() {
+    parent::update();
+    variable_set('hosting_user_remote_server_' . $this->server->nid, $this->remote_user);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete() {
+    parent::delete();
+    variable_del('hosting_user_remote_server_' . $this->server->nid);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function form(&$form) {
+    parent::form($form);
+    $form['remote_user'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Remote user',
+      '#description' => t('The remote ssh user.'),
+      '#default_value' => (isset($this->remote_user)) ? $this->remote_user : '',
+      '#size' => 20,
+      '#maxlength' => 255,
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function view(&$render) {
+    parent::view($render);
+    $render['remote_user'] = array(
+      '#type' => 'item',
+      '#title' => t('Remote user'),
+      '#markup' => filter_xss($this->remote_user),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function context_options($task_type, $ref_type, &$task) {
+    parent::context_options($task_type, $ref_type, $task);
+    $task->context_options['remote_user'] = variable_get('hosting_user_remote_server_' . $this->server->nid, '');
+  }
+
+}
