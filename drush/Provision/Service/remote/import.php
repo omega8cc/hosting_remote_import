@@ -30,7 +30,7 @@ class Provision_Service_remote_import extends Provision_Service {
     return array();
   }
 
-  function fetch_site() {
+  function fetch_site($site) {
     return FALSE;
   }
 

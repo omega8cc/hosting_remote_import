@@ -24,6 +24,14 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
   */
 
   /**
+   * {@inheritdoc}
+   */
+  public function init_server() {
+    parent::init_server();
+    $this->server->setProperty('remote_user', '');
+  }
+
+  /**
    * Initialize this class, including option handling.
    */
   function init() {
@@ -124,7 +132,19 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
       'root' => NULL,
       'uri' => NULL,
     );
-    return drush_invoke_process(array('remote-host' => $this->server->remote_host, 'remote-user' => $this->server->script_user), $command, $data, array(), array('method' => 'POST', 'integrate' => TRUE));
+
+    $config = array('remote-host' => $this->server->remote_host);
+    if (!empty($this->server->remote_user)) {
+      $config['remote-user'] = $this->server->remote_user;
+    }
+    else {
+      $config['remote-user'] = $this->server->script_user;
+    }
+
+    return drush_invoke_process($config, $command, $data, array(), array(
+      'method' => 'POST',
+      'integrate' => TRUE,
+    ));
   }
 
   function fetch_site($site) {
@@ -133,7 +153,7 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
 
     // And now fetch that backup.
     $local_file = d('@hostmaster')->platform->server->backup_path . '/' . basename($remote_backup_file);
-    $this->fetch($remote_backup_file, $local_file);
+    $this->fetch_path($remote_backup_file, $local_file);
 
     // And now delete the backup just fetched.
     $this->remote_execute('provision-backup-delete', array($remote_backup_file));
@@ -141,11 +161,18 @@ class Provision_Service_remote_import_hostmaster extends Provision_Service_remot
     return $local_file;
   }
 
-  function fetch($path, $dest) {
+  function fetch_path($path, $dest) {
     $options = array(
       'omit-dir-times' => TRUE,
     );
-    if (drush_core_call_rsync(escapeshellarg($this->server->script_user . '@' . $this->server->remote_host . ':/') . $path, $dest, $options, TRUE, FALSE)) {
+
+    $user = $this->server->script_user;
+    if (!empty($this->server->remote_user)) {
+      $user = $this->server->remote_user;
+    }
+
+    $user_and_host = escapeshellarg($user . '@' . $this->server->remote_host . ':/');
+    if (drush_core_call_rsync($user_and_host . $path, $dest, $options, TRUE, FALSE)) {
       drush_log(dt('@path has been fetched from remote server @remote_host.', array(
         '@path' => $path,
         '@remote_host' => $this->server->remote_host))
